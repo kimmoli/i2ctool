@@ -1,56 +1,15 @@
-/*
-  Copyright (C) 2013 Jolla Ltd.
-  Contact: Thomas Perl <thomas.perl@jollamobile.com>
-  All rights reserved.
-
-  You may use this file under the terms of BSD license as follows:
-
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions are met:
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of the Jolla Ltd nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR
-  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import i2ctool.I2cif 1.0
 
-
 Page
 {
-    id: page
+    id: mainMenuPage
 
     SilicaFlickable
     {
         anchors.fill: parent
-
-        /*
-        PullDownMenu
-        {
-            MenuItem
-            {
-                text: "Show Page 2"
-                onClicked: pageStack.push(Qt.resolvedUrl("SecondPage.qml"))
-            }
-        }
-*/
 
         contentHeight: column.height
 
@@ -58,19 +17,85 @@ Page
         {
             id: column
 
-            width: page.width
+            width: mainMenuPage.width
             spacing: Theme.paddingLarge
             PageHeader
             {
-                title: "I2ctool"
+                title: "I2C Tool"
+            }
+
+            ComboBox
+            {
+                id: devname
+                anchors.horizontalCenter: parent.horizontalCenter
+                label: "Device: "
+                currentIndex: 1
+                menu: ContextMenu
+                {
+                    MenuItem { text: "/dev/i2c-0" }
+                    MenuItem { text: "/dev/i2c-1" }
+                    MenuItem { text: "/dev/i2c-3" }
+                    MenuItem { text: "/dev/i2c-4" }
+                    MenuItem { text: "/dev/i2c-12" }
+                }
+            }
+
+
+            Row
+            {
+                anchors.horizontalCenter: parent.horizontalCenter
+                Button
+                {
+                    text: "enable Vdd"
+                    onClicked: i2cif.tohVddSet("on")
+                }
+                Button
+                {
+                    text: "disable Vdd"
+                    onClicked: i2cif.tohVddSet("off")
+                }
+
+            }
+
+            Button
+            {
+                text: "Probe"
+                anchors.horizontalCenter: parent.horizontalCenter
+                onClicked: pageStack.push(Qt.resolvedUrl("Probe.qml"), {deviceName: devname.value})
+            }
+
+            Button
+            {
+                text: "Reader/Writer"
+                anchors.horizontalCenter: parent.horizontalCenter
+                onClicked: pageStack.push(Qt.resolvedUrl("ReaderWriter.qml"), {deviceName: devname.value})
+            }
+
+
+            Rectangle
+            {
+                height: 50
+                width: 1
+                color: "transparent"
+            }
+
+            Image {
+                source: "../i2ctool.png"
+                anchors.horizontalCenter: parent.horizontalCenter
             }
             Label
             {
-                x: Theme.paddingLarge
-                text: "Hello you"
-                color: Theme.primaryColor
-                font.pixelSize: Theme.fontSizeExtraLarge
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: Text.AlignHCenter
+                text: "I2C Tool"
             }
+            Label
+            {
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: Text.AlignHCenter
+                text: "(C) 2013 Kimmoli"
+            }
+
         }
     }
 
@@ -78,6 +103,7 @@ Page
     {
         id: i2cif
     }
+
 }
 
 

@@ -12,16 +12,13 @@
 #include <QQmlContext>
 #include <QCoreApplication>
 #include "i2cif.h"
+#include "conv.h"
 
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setOrganizationDomain("KimmoLi");
-    QCoreApplication::setOrganizationName("KimmoLi");
-    QCoreApplication::setApplicationName("i2ctool");
-    QCoreApplication::setApplicationVersion("0.1-1");
-
     qmlRegisterType<I2cif>("i2ctool.I2cif", 1, 0, "I2cif");
+    qmlRegisterType<Conv>("i2ctool.Conv", 1, 0, "Conv");
 
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
     QScopedPointer<QQuickView> view(SailfishApp::createView());

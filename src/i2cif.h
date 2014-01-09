@@ -5,23 +5,31 @@
 class I2cif : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString variable READ readVar WRITE writeVar(QString) NOTIFY varChanged())
+    Q_PROPERTY(QString i2cProbingStatus READ i2cProbingStatus  NOTIFY i2cProbingChanged)
+    Q_PROPERTY(QString i2cReadResult READ i2cReadResult  NOTIFY i2cReadResultChanged)
 
 public:
     explicit I2cif(QObject *parent = 0);
     ~I2cif();
 
-    QString readVar();
-    void writeVar(QString);
+    QString i2cProbingStatus();
+    QString i2cReadResult();
 
-    Q_INVOKABLE void readInitParams();
-    Q_INVOKABLE void clearVar();
+    Q_INVOKABLE void i2cProbe(QString devName, unsigned char address);
+    Q_INVOKABLE void i2cWrite(QString devName, unsigned char address, QString data);
+    Q_INVOKABLE void i2cRead(QString devName, unsigned char address, int count);
+    Q_INVOKABLE void tohVddSet(QString onOff);
 
 signals:
-    void varChanged();
+    void i2cProbingChanged();
+    void i2cError();
+    void i2cWriteOk();
+    void i2cReadResultChanged();
 
 private:
-    QString m_var;
+    QString m_probingResult;
+    QString m_readResult;
+
 };
 
 
