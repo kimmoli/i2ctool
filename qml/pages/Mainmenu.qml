@@ -93,7 +93,7 @@ Page
             {
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: Text.AlignHCenter
-                text: "(C) 2013 Kimmoli"
+                text: "(C) 2014 Kimmoli"
             }
 
         }
