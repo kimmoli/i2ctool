@@ -26,5 +26,6 @@ OTHER_FILES += qml/i2ctool.qml \
     i2ctool.desktop \
     qml/pages/Probe.qml \
     qml/pages/ReaderWriter.qml \
-    qml/i2ctool.png
+    qml/i2ctool.png \
+    qml/pages/Gpio.qml
 

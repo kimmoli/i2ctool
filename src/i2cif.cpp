@@ -8,6 +8,10 @@
 #include <QCoreApplication>
 #include "conv.h"
 
+#define GPIO_INT "67"
+
+void getGpioControl();
+
 I2cif::I2cif(QObject *parent) :
     QObject(parent)
 {
@@ -240,5 +244,79 @@ void I2cif::i2cProbe(QString devName, unsigned char address)
     emit i2cProbingChanged();
 
 }
+
+
+void I2cif::gpioSetValue(bool val)
+{
+
+    int fd;
+
+    getGpioControl();
+
+    fd = open("/sys/class/gpio/gpio" GPIO_INT "/value", O_WRONLY);
+
+    if (!(fd < 0))
+    {
+        write (fd, val ? "1" : "0", 1);
+        close(fd);
+    }
+}
+
+void I2cif::gpioRequestValue()
+{
+    emit gpioValueChanged();
+}
+
+bool I2cif::gpioGetValue()
+{
+    int fd;
+    char buf[1] = { 0 };
+
+    getGpioControl();
+
+    fd = open("/sys/class/gpio/gpio" GPIO_INT "/value", O_RDONLY);
+
+    if (!(fd < 0))
+    {
+        read(fd, buf ,1);
+        close(fd);
+    }
+
+    return (buf[0] == '1');
+}
+
+void I2cif::gpioDirInput(bool val)
+{
+
+    int fd;
+
+    getGpioControl();
+
+    fd = open("/sys/class/gpio/gpio" GPIO_INT "/direction", O_WRONLY);
+
+    if (!(fd < 0))
+    {
+        write (fd, val ? "in" : "out", val ? 2 : 3);
+        close(fd);
+    }
+
+}
+
+
+void getGpioControl()
+{
+
+    int fd;
+
+    fd = open("/sys/class/gpio/export", O_WRONLY);
+
+    if (!(fd < 0))
+    {
+        write (fd, GPIO_INT, strlen(GPIO_INT));
+        close(fd);
+    }
+
+}
+
 
 

@@ -57,11 +57,19 @@ Page
 
             }
 
-            Button
+            Row
             {
-                text: "Probe"
                 anchors.horizontalCenter: parent.horizontalCenter
-                onClicked: pageStack.push(Qt.resolvedUrl("Probe.qml"), {deviceName: devname.value})
+                Button
+                {
+                    text: "Probe"
+                    onClicked: pageStack.push(Qt.resolvedUrl("Probe.qml"), {deviceName: devname.value})
+                }
+                Button
+                {
+                    text: "GPIO"
+                    onClicked: pageStack.push(Qt.resolvedUrl("Gpio.qml"), {deviceName: devname.value})
+                }
             }
 
             Button
