@@ -160,7 +160,7 @@ void I2cif::i2cRead(QString devName, unsigned char address, int count)
     Conv conv;
 
     m_readResult = "";
-    emit i2cReadResultChanged();
+    //emit i2cReadResultChanged();
 
     QByteArray tmpBa = devName.toUtf8();
     const char* devNameChar = tmpBa.constData();
