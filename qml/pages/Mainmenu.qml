@@ -7,6 +7,8 @@ Page
 {
     id: mainMenuPage
 
+    onStatusChanged: i2cif.requestTohVddState()
+
     SilicaFlickable
     {
         anchors.fill: parent
@@ -80,7 +82,11 @@ Page
             {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: "TOH EEPROM"
-                onClicked: pageStack.push(Qt.resolvedUrl("TohEeprom.qml"), {deviceName: "/dev/i2c-1"})
+                onClicked:
+                {
+                    i2cif.unbindTohCore() // This works only if root
+                    pageStack.push(Qt.resolvedUrl("TohEeprom.qml"), {deviceName: "/dev/i2c-1"})
+                }
             }
 
             Rectangle

@@ -63,6 +63,10 @@ void I2cif::requestTohVddState()
     emit tohVddStatusChanged();
 }
 
+/*
+ * Function to check which is current state of Vdd
+ *
+ */
 bool I2cif::tohVddGet()
 {
     int fd;
@@ -76,7 +80,7 @@ bool I2cif::tohVddGet()
         close(fd);
     }
 
-    return (buf[0] == 'e'); // returns "enabled" or "disabled"
+    return (buf[0] == 'e'); // values are "enabled" or "disabled"
 }
 
 
@@ -131,7 +135,7 @@ void I2cif::i2cWrite(QString devName, unsigned char address, QString data)
         return;
     }
 
-    /* Try to read 2 bytes. This is also safe for LM75 */
+    /* write the data */
     if (write( file, buf, bytes.length() ) != bytes.length())
     {
         close(file);
@@ -182,7 +186,7 @@ void I2cif::i2cRead(QString devName, unsigned char address, int count)
         return;
     }
 
-    /* Try to read 2 bytes. This is also safe for LM75 */
+    /* Read data */
     if (read( file, buf, count ) != count)
     {
         close(file);
@@ -267,4 +271,28 @@ void I2cif::i2cProbe(QString devName, unsigned char address)
 }
 
 
+/*
+ *  If microswitch is pressed tohd takes control over i2c-1-0050 (eeprom)
+ *  this is used to release it.
+ *  but duh, needs to be done as root
+ *  echo toh-core.0 > /sys/bus/platform/drivers/toh-core/unbind
+*/
 
+void I2cif::unbindTohCore()
+{
+    int fd;
+
+    fd = open("/sys/bus/platform/drivers/toh-core/unbind", O_WRONLY);
+
+    if (!(fd < 0))
+    {
+        if (write (fd, "toh-core.0", 10) != 10)
+            fprintf(stderr, "unbind failed\n");
+        else
+            fprintf(stderr, "unbind OK\n");
+
+        close(fd);
+    }
+    else
+        fprintf(stderr, "unbind failed. Did you start i2ctool as root?\n");
+}

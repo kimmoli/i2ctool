@@ -24,6 +24,17 @@ Page
                                 "UDATA Addr",
                                 "UDATA Size" ]
 
+    function sleep(milliseconds)
+    {
+      var start = new Date().getTime();
+      for (;;)
+      {
+        if ((new Date().getTime() - start) > milliseconds)
+        {
+          break;
+        }
+      }
+    }
 
     Component.onCompleted:
     {
@@ -89,8 +100,10 @@ Page
                     id: errorLabel
                     color: "red"
                     font.bold: true
+                    font.pixelSize: Theme.fontSizeExtraLarge
                     text: "EEPROM not found"
                     visible: false
+                    anchors.centerIn: parent
                 }
             }
 
@@ -163,25 +176,44 @@ Page
                 onClicked:
                 {
                     console.log(eepromData.count)
-                    var data = "00 "
-                    for (var i=0; i<eepromData.count; i++)
-                    {
-                        var tmp = eepromData.get(i).headerValue
-                        if (tmp.length === 4)
-                        {
-                            data += String(tmp).charAt(0)
-                            data += String(tmp).charAt(1)
-                            data += " "
-                            data += String(tmp).charAt(2)
-                            data += String(tmp).charAt(3)
-                        }
-                        else
-                            data += String(tmp)
 
-                        if ((i+1)<eepromData.count)
-                            data += " "
-                    }
+                    var data = "00 "
+                    var tmp = eepromData.get(0).headerValue
+                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
+
+                    tmp = eepromData.get(1).headerValue
+                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
+
+                    tmp = eepromData.get(2).headerValue
+                    data += String(tmp) + " "
+
+                    tmp = eepromData.get(3).headerValue
+                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
+
+                    tmp = eepromData.get(4).headerValue
+                    data += String(tmp).charAt(0) + String(tmp).charAt(1)
+
                     i2cif.i2cWrite(deviceName, conv.toInt(addr), data)
+                    sleep(50)
+
+                    data = "08 "
+
+                    data += String(tmp).charAt(2) + String(tmp).charAt(3) + " "
+
+                    tmp = eepromData.get(5).headerValue
+                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
+
+                    tmp = eepromData.get(6).headerValue
+                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
+
+                    tmp = eepromData.get(7).headerValue
+                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
+
+                    data += "FF"
+
+                    i2cif.i2cWrite(deviceName, conv.toInt(addr), data)
+                    sleep(50)
+
                 }
             }
         }

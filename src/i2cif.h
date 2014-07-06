@@ -22,6 +22,7 @@ public:
     Q_INVOKABLE void tohVddSet(QString onOff);
     bool tohVddGet();
     Q_INVOKABLE void requestTohVddState();
+    Q_INVOKABLE void unbindTohCore();
 
 signals:
     void i2cProbingChanged();
