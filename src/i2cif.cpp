@@ -8,15 +8,12 @@
 #include <QCoreApplication>
 #include "conv.h"
 
-#define GPIO_INT "67"
-
-void getGpioControl();
-
 I2cif::I2cif(QObject *parent) :
     QObject(parent)
 {
     m_probingResult = "pending";
     m_readResult = "Nothing yet";
+    emit tohVddStatusChanged();
 }
 
 I2cif::~I2cif()
@@ -57,7 +54,31 @@ void I2cif::tohVddSet(QString onOff)
     }
     else
         fprintf(stderr, "Vdd failed to open. Did you start i2ctool as root?\n");
+
+    emit tohVddStatusChanged();
 }
+
+void I2cif::requestTohVddState()
+{
+    emit tohVddStatusChanged();
+}
+
+bool I2cif::tohVddGet()
+{
+    int fd;
+    char buf[1] = { 0 };
+
+    fd = open("/sys/devices/platform/reg-userspace-consumer.0/state", O_RDONLY);
+
+    if (!(fd < 0))
+    {
+        read(fd, buf ,1);
+        close(fd);
+    }
+
+    return (buf[0] == 'e'); // returns "enabled" or "disabled"
+}
+
 
 
 /*
@@ -242,79 +263,6 @@ void I2cif::i2cProbe(QString devName, unsigned char address)
     m_probingResult = "ok";
     fprintf(stderr, "device found at address %02x\n", address);
     emit i2cProbingChanged();
-
-}
-
-
-void I2cif::gpioSetValue(bool val)
-{
-
-    int fd;
-
-    getGpioControl();
-
-    fd = open("/sys/class/gpio/gpio" GPIO_INT "/value", O_WRONLY);
-
-    if (!(fd < 0))
-    {
-        write (fd, val ? "1" : "0", 1);
-        close(fd);
-    }
-}
-
-void I2cif::gpioRequestValue()
-{
-    emit gpioValueChanged();
-}
-
-bool I2cif::gpioGetValue()
-{
-    int fd;
-    char buf[1] = { 0 };
-
-    getGpioControl();
-
-    fd = open("/sys/class/gpio/gpio" GPIO_INT "/value", O_RDONLY);
-
-    if (!(fd < 0))
-    {
-        read(fd, buf ,1);
-        close(fd);
-    }
-
-    return (buf[0] == '1');
-}
-
-void I2cif::gpioDirInput(bool val)
-{
-
-    int fd;
-
-    getGpioControl();
-
-    fd = open("/sys/class/gpio/gpio" GPIO_INT "/direction", O_WRONLY);
-
-    if (!(fd < 0))
-    {
-        write (fd, val ? "in" : "out", val ? 2 : 3);
-        close(fd);
-    }
-
-}
-
-
-void getGpioControl()
-{
-
-    int fd;
-
-    fd = open("/sys/class/gpio/export", O_WRONLY);
-
-    if (!(fd < 0))
-    {
-        write (fd, GPIO_INT, strlen(GPIO_INT));
-        close(fd);
-    }
 
 }
 

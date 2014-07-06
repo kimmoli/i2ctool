@@ -42,10 +42,11 @@ Page
                         radius: 10
                         color: "transparent"
                         border.color: Theme.highlightColor
+                        property color textcol: Theme.highlightColor
                         Text
                         {
                             anchors.centerIn: parent
-                            color: "white"
+                            color: parent.textcol
                             font.bold: true
                             text: conv.toHex(index, 2)
                         }
@@ -70,13 +71,25 @@ Page
             var tmp = addressGrid.itemAt(address)
             var res = i2cif.i2cProbingStatus;
             if (res === "openFail")
+            {
                 tmp.color = "red"
+                tmp.textcol = "white"
+            }
             else if (res === "ioctlFail")
+            {
                 tmp.color = "blue"
+                tmp.textcol = "white"
+            }
             else if (res === "readFail")
+            {
                 tmp.color = "yellow"
+                tmp.textcol = "black"
+            }
             else if (res === "ok")
+            {
                 tmp.color = "green"
+                tmp.textcol = "white"
+            }
 
             address++
             if (address < 128)

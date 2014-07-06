@@ -46,14 +46,24 @@ Page
             {
                 width: parent.width - 100
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "Address and data in hex\nseparate databytes with space\nBytecount in decimal"
+                text: "Address and data in hex. Separate databytes with space. Bytecount in decimal."
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
             }
+            Rectangle
+            {
+                color: "transparent"
+                height: 50
+                width: 1
+            }
+
             TextField
             {
                 id: address
                 placeholderText: "Enter device address"
-                inputMethodHints: Qt.ImhPreferLowercase | Qt.ImhNoAutoUppercase | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
+                inputMethodHints: Qt.ImhPreferUppercase| Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
                 width: parent.width - 100
+                validator: RegExpValidator { regExp: /[0-9a-fA-F]{1,2}/ }
                 anchors.horizontalCenter: parent.horizontalCenter
                 EnterKey.onClicked: focus = false
             }
@@ -75,8 +85,9 @@ Page
             {
                 id: writeData
                 visible: mode.currentIndex === 0 || mode.currentIndex === 2
-                placeholderText: "Enter bytes to write"
-                inputMethodHints: Qt.ImhPreferLowercase | Qt.ImhNoAutoUppercase | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
+                placeholderText: "Enter databytes to write"
+                inputMethodHints: Qt.ImhPreferUppercase| Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
+                validator: RegExpValidator { regExp: /^[a-fA-F0-9]{1,2}(\s+[a-fA-F0-9]{1,2})*$/ }
                 width: parent.width - 100
                 anchors.horizontalCenter: parent.horizontalCenter
                 EnterKey.onClicked: focus = false
@@ -86,7 +97,8 @@ Page
                 id: readCount
                 visible: mode.currentIndex === 1 || mode.currentIndex === 2
                 placeholderText: "Enter number of bytes to read"
-                inputMethodHints: Qt.ImhPreferLowercase | Qt.ImhNoAutoUppercase | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
+                inputMethodHints: Qt.ImhDigitsOnly
+                validator: RegExpValidator { regExp: /\d+/ }
                 width: parent.width - 100
                 anchors.horizontalCenter: parent.horizontalCenter
                 EnterKey.onClicked: focus = false

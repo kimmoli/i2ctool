@@ -19,5 +19,8 @@ OTHER_FILES += qml/i2ctool.qml \
     i2ctool.desktop \
     qml/pages/Probe.qml \
     qml/pages/ReaderWriter.qml \
-    qml/i2ctool.png
+    qml/i2ctool.png \
+    qml/pages/TohEeprom.qml \
+    qml/icon-on.png \
+    qml/icon-off.png
 

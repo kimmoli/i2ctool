@@ -49,6 +49,10 @@ Page
                     text: "enable Vdd"
                     onClicked: i2cif.tohVddSet("on")
                 }
+                Image
+                {
+                    source: i2cif.tohVddStatus ? "../icon-on.png" : "../icon-off.png"
+                }
                 Button
                 {
                     text: "disable Vdd"
@@ -71,6 +75,12 @@ Page
                     text: "Reader/Writer"
                     onClicked: pageStack.push(Qt.resolvedUrl("ReaderWriter.qml"), {deviceName: devname.value})
                 }
+            }
+            Button
+            {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "TOH EEPROM"
+                onClicked: pageStack.push(Qt.resolvedUrl("TohEeprom.qml"), {deviceName: "/dev/i2c-1"})
             }
 
             Rectangle
