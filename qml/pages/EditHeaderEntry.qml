@@ -57,7 +57,7 @@ Dialog
             font.pixelSize: Theme.fontSizeExtraLarge
             color: Theme.primaryColor
             placeholderText: qsTr("Enter new value here")
-            onTextChanged: editValueDialog.canAccept = text.length > 0
+            onTextChanged: editValueDialog.canAccept = text.length === len
             inputMethodHints: Qt.ImhUppercaseOnly | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
             validator: RegExpValidator { id: valueValidator }
             EnterKey.enabled: text.length === len

@@ -39,6 +39,15 @@ Page
         anchors.fill: parent
         contentHeight: column.height
 
+        PullDownMenu
+        {
+            MenuItem
+            {
+                text: "Fill with some default"
+                onClicked:
+            }
+        }
+
         Column
         {
             id: column
@@ -64,8 +73,17 @@ Page
                 id: spacerOne
                 color: "transparent"
                 height: 50
-                width: 1
+                width: parent.width
+                Label
+                {
+                    id: errorLabel
+                    color: "red"
+                    font.bold: true
+                    text: "EEPROM not found"
+                    visible: false
+                }
             }
+
 
             ListView
             {
@@ -129,7 +147,9 @@ Page
             }
             Button
             {
+                id: writeButton
                 text: "Write"
+                anchors.horizontalCenter: parent.horizontalCenter
                 onClicked:
                 {
                     console.log(eepromData.count)
@@ -165,6 +185,12 @@ Page
     I2cif
     {
         id: i2cif
+        onI2cError:
+        {
+            writeButton.visible = false
+            errorLabel.visible = true
+        }
+
         onI2cReadResultChanged:
         {
             if (state === "Unknown")
