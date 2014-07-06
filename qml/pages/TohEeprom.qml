@@ -45,6 +45,16 @@ Page
             {
                 text: "Fill with some default"
                 onClicked:
+                {
+                    dataView.model.setProperty(0, "headerValue", "4B4C")
+                    dataView.model.setProperty(1, "headerValue", "0001")
+                    dataView.model.setProperty(2, "headerValue", "01")
+                    dataView.model.setProperty(3, "headerValue", "0100")
+                    dataView.model.setProperty(4, "headerValue", "0040")
+                    dataView.model.setProperty(5, "headerValue", "0000")
+                    dataView.model.setProperty(6, "headerValue", "0080")
+                    dataView.model.setProperty(7, "headerValue", "0000")
+                }
             }
         }
 

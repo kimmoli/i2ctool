@@ -15,9 +15,9 @@ Dialog
     {
         valueField.text = headerValue
         if (len === 2)
-            valueValidator.regExp = /[A-F0-9]{2}/
+            valueValidator.regExp = /[a-fA-F0-9]{2}/
         else
-            valueValidator.regExp = /[A-F0-9]{4}/
+            valueValidator.regExp = /[a-fA-F0-9]{4}/
     }
 
     onAccepted:
