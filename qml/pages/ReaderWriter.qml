@@ -46,7 +46,7 @@ Page
             {
                 width: parent.width - 100
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "All values in hex, separate with space"
+                text: "Address and data in hex\nseparate databytes with space\nBytecount in decimal"
             }
             TextField
             {
@@ -63,7 +63,7 @@ Page
                 width: parent.width - 100
                 label: "Mode"
                 anchors.horizontalCenter: parent.horizontalCenter
-                currentIndex: 2
+                currentIndex: 1
                 menu: ContextMenu
                 {
                     MenuItem { text: "Write" }
@@ -94,7 +94,7 @@ Page
 
             Button
             {
-                text: "Go"
+                text: mode.currentIndex === 0 ? "Write" : (mode.currentIndex === 1 ? "Read" : "Write and read")
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked:
                 {

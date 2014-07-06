@@ -21,7 +21,6 @@ OTHER_FILES += qml/i2ctool.qml \
     qml/cover/CoverPage.qml \
     qml/pages/Mainmenu.qml \
     rpm/i2ctool.spec \
-    rpm/i2ctool.yaml \
 	i2ctool.png \
     i2ctool.desktop \
     qml/pages/Probe.qml \

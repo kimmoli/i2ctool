@@ -1,9 +1,8 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import i2ctool.I2cif 1.0
 import i2ctool.Conv 1.0
-
+import i2ctool.I2cif 1.0
 
 Page
 {
@@ -46,7 +45,7 @@ Page
                         Text
                         {
                             anchors.centerIn: parent
-                            color: Theme.highlightColor
+                            color: "white"
                             font.bold: true
                             text: conv.toHex(index, 2)
                         }

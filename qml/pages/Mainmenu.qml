@@ -57,20 +57,21 @@ Page
 
             }
 
-            Button
+            Row
             {
-                text: "Probe"
                 anchors.horizontalCenter: parent.horizontalCenter
-                onClicked: pageStack.push(Qt.resolvedUrl("Probe.qml"), {deviceName: devname.value})
-            }
+                Button
+                {
+                    text: "Probe"
+                    onClicked: pageStack.push(Qt.resolvedUrl("Probe.qml"), {deviceName: devname.value})
+                }
 
-            Button
-            {
-                text: "Reader/Writer"
-                anchors.horizontalCenter: parent.horizontalCenter
-                onClicked: pageStack.push(Qt.resolvedUrl("ReaderWriter.qml"), {deviceName: devname.value})
+                Button
+                {
+                    text: "Reader/Writer"
+                    onClicked: pageStack.push(Qt.resolvedUrl("ReaderWriter.qml"), {deviceName: devname.value})
+                }
             }
-
 
             Rectangle
             {
@@ -79,7 +80,8 @@ Page
                 color: "transparent"
             }
 
-            Image {
+            Image
+            {
                 source: "../i2ctool.png"
                 anchors.horizontalCenter: parent.horizontalCenter
             }
