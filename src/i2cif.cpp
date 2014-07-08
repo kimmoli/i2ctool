@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <QCoreApplication>
+#include <QSettings>
 #include "conv.h"
 
 I2cif::I2cif(QObject *parent) :
@@ -70,13 +71,14 @@ void I2cif::requestTohVddState()
 bool I2cif::tohVddGet()
 {
     int fd;
+    int retval = 0;
     char buf[1] = { 0 };
 
     fd = open("/sys/devices/platform/reg-userspace-consumer.0/state", O_RDONLY);
 
     if (!(fd < 0))
     {
-        read(fd, buf ,1);
+        retval += read(fd, buf ,1);
         close(fd);
     }
 
@@ -295,4 +297,43 @@ void I2cif::unbindTohCore()
     }
     else
         fprintf(stderr, "unbind failed. Did you start i2ctool as root?\n");
+}
+
+/*
+ * Default values commands
+ *
+ */
+
+void I2cif::setAsDefault(QString index, QString value)
+{
+    QSettings s("harbour-i2ctool", "harbour-i2ctool");
+    s.beginGroup("Defaults");
+    s.setValue(index, value);
+    s.endGroup();
+}
+
+QString I2cif::getDefault(QString index)
+{
+    QString value;
+
+    QSettings s("harbour-i2ctool", "harbour-i2ctool");
+    s.beginGroup("Defaults");
+    value = s.value(index, firstTimeDefault(index)).toString();
+    s.endGroup();
+
+    return value;
+}
+
+/* helper :) */
+QString I2cif::firstTimeDefault(QString index)
+{
+    if (index == "0") return "4B4C";
+    if (index == "1") return "0001";
+    if (index == "2") return "01";
+    if (index == "3") return "0100";
+    if (index == "4") return "0040";
+    if (index == "5") return "0040";
+    if (index == "6") return "0080";
+    if (index == "7") return "0000";
+    return "0000";
 }

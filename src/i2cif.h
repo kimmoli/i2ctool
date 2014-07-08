@@ -24,6 +24,11 @@ public:
     Q_INVOKABLE void requestTohVddState();
     Q_INVOKABLE void unbindTohCore();
 
+    Q_INVOKABLE void setAsDefault(QString index, QString value);
+    Q_INVOKABLE QString getDefault(QString index);
+
+    QString firstTimeDefault(QString index);
+
 signals:
     void i2cProbingChanged();
     void i2cError();
