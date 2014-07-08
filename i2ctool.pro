@@ -23,5 +23,6 @@ OTHER_FILES += qml/i2ctool.qml \
     qml/pages/TohEeprom.qml \
     qml/icon-on.png \
     qml/icon-off.png \
-    qml/pages/EditHeaderEntry.qml
+    qml/pages/EditHeaderEntry.qml \
+    qml/pages/TohEepromCfgEdit.qml
 

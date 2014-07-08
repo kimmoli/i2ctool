@@ -15,14 +15,19 @@ Dialog
     {
         valueField.text = headerValue
         if (len === 2)
-            valueValidator.regExp = /[a-fA-F0-9]{2}/
+            valueValidator.regExp = /[a-fA-F0-9]{1,2}/
         else
-            valueValidator.regExp = /[a-fA-F0-9]{4}/
+            valueValidator.regExp = /[a-fA-F0-9]{1,4}/
     }
 
     onAccepted:
     {
-        headerValue = valueField.text
+        var tmp = valueField.text
+
+        for (; tmp.length < len ;)
+            tmp = '0' + tmp
+
+        headerValue = tmp
     }
 
     DialogHeader
@@ -57,10 +62,14 @@ Dialog
             font.pixelSize: Theme.fontSizeExtraLarge
             color: Theme.primaryColor
             placeholderText: qsTr("Enter new value here")
-            onTextChanged: editValueDialog.canAccept = text.length === len
+            onTextChanged:
+            {
+                valueField.text = String(valueField.text).toUpperCase()
+                editValueDialog.canAccept = (text.length > 0) && (text.length <= len)
+            }
             inputMethodHints: Qt.ImhUppercaseOnly | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
             validator: RegExpValidator { id: valueValidator }
-            EnterKey.enabled: text.length === len
+            EnterKey.enabled: (text.length > 0) && (text.length <= len)
             EnterKey.iconSource: "image://theme/icon-m-enter-accept"
             EnterKey.onClicked: editValueDialog.accept()
         }

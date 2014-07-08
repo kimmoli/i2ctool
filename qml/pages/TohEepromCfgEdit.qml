@@ -9,20 +9,11 @@ Page
 {
     id: rwPage
     property string deviceName : "/dev/i2c-1"
+    property string cfgAddr : "0"
 
     property string result : "Unknown"
     property string state : "Unknown"
     property string addr : "50"
-
-    property var headerData: []
-    property var headerTitle: [ "Vendor ID",
-                                "Product ID",
-                                "Revision",
-                                "EEPROM Size",
-                                "CFG Addr",
-                                "CFG Size",
-                                "UDATA Addr",
-                                "UDATA Size" ]
 
     function sleep(milliseconds)
     {
@@ -40,44 +31,19 @@ Page
     {
         state = "readHeader"
         /* Set read pointer to 0 */
-        i2cif.i2cWrite(deviceName, conv.toInt(addr), "0")
+        i2cif.i2cWrite(deviceName, conv.toInt(addr), cfgAddr)
         /* Read whole header of 15 bytes */
-        i2cif.i2cRead(deviceName, conv.toInt(addr), 15)
+        i2cif.i2cRead(deviceName, conv.toInt(addr), 64)
     }
 
     SilicaFlickable
     {
+        id: sf
+
         anchors.fill: parent
         contentHeight: column.height
 
-        PullDownMenu
-        {
-            MenuItem
-            {
-                text: "Edit CFG section"
-                onClicked:
-                {
-                    pageStack.push(Qt.resolvedUrl("TohEepromCfgEdit.qml"), {deviceName: "/dev/i2c-1",
-                                   cfgAddr: dataView.model.get(4).headerValue})
-                }
-            }
-
-            MenuItem
-            {
-                text: "Fill with some default"
-                onClicked:
-                {
-                    dataView.model.setProperty(0, "headerValue", "4B4C")
-                    dataView.model.setProperty(1, "headerValue", "0001")
-                    dataView.model.setProperty(2, "headerValue", "01")
-                    dataView.model.setProperty(3, "headerValue", "0100")
-                    dataView.model.setProperty(4, "headerValue", "0040")
-                    dataView.model.setProperty(5, "headerValue", "0000")
-                    dataView.model.setProperty(6, "headerValue", "0080")
-                    dataView.model.setProperty(7, "headerValue", "0000")
-                }
-            }
-        }
+        VerticalScrollDecorator { flickable: sf }
 
         Column
         {
@@ -95,7 +61,7 @@ Page
             {
                 width: parent.width - 100
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "Show, edit and program\nTOH EEPROM contents"
+                text: "Show, edit and program TOH EEPROM config_data area contents"
                 wrapMode: Text.Wrap
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -122,7 +88,7 @@ Page
             {
                 id: dataView
 
-                model: eepromData
+                model: eepromCfgData
 
                 width: parent.width
 
@@ -132,7 +98,6 @@ Page
                     width: parent.width
                     height: Theme.itemSizeSmall
                     onClicked: editData()
-
 
                     function editData()
                     {
@@ -150,6 +115,7 @@ Page
                             dataView.model.setProperty(index, "headerValue", editDialog.headerValue)
                         })
                     }
+
 
                     Row
                     {
@@ -183,44 +149,24 @@ Page
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked:
                 {
-                    console.log(eepromData.count)
+                    console.log(eepromCfgData.count)
 
-                    var data = "00 "
-                    var tmp = eepromData.get(0).headerValue
-                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
+                    var address = conv.toInt(cfgAddr.substring(2))
 
-                    tmp = eepromData.get(1).headerValue
-                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
+                    for (var m = 0 ; m<8; m++)
+                    {
+                        var data = conv.toHex((address + m*8),2)
 
-                    tmp = eepromData.get(2).headerValue
-                    data += String(tmp) + " "
+                        for (var n = 0 ; n<4; n++)
+                        {
+                            var tmp = eepromCfgData.get((m*4)+n).headerValue
+                            data += " " + String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3)
+                        }
 
-                    tmp = eepromData.get(3).headerValue
-                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
+                        i2cif.i2cWrite(deviceName, conv.toInt(addr), data)
+                        sleep(50)
 
-                    tmp = eepromData.get(4).headerValue
-                    data += String(tmp).charAt(0) + String(tmp).charAt(1)
-
-                    i2cif.i2cWrite(deviceName, conv.toInt(addr), data)
-                    sleep(50)
-
-                    data = "08 "
-
-                    data += String(tmp).charAt(2) + String(tmp).charAt(3) + " "
-
-                    tmp = eepromData.get(5).headerValue
-                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
-
-                    tmp = eepromData.get(6).headerValue
-                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
-
-                    tmp = eepromData.get(7).headerValue
-                    data += String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3) + " "
-
-                    data += "FF"
-
-                    i2cif.i2cWrite(deviceName, conv.toInt(addr), data)
-                    sleep(50)
+                    }
 
                 }
             }
@@ -229,7 +175,7 @@ Page
 
     ListModel
     {
-        id: eepromData
+        id: eepromCfgData
     }
 
     I2cif
@@ -252,33 +198,11 @@ Page
             if (state === "readHeader")
             {
                 var header = i2cif.i2cReadResult.split(' ')
-                /*
-                    { TOH_EEPROM_VENDOR, 2, 0 },
-                    { TOH_EEPROM_PRODUCT, 2, 2 },
-                    { TOH_EEPROM_REV, 1, 4 },
-                    { TOH_EEPROM_EEPROM_SIZE, 2, 5 },
-                    { TOH_EEPROM_CFG_ADDR, 2, 7 },
-                    { TOH_EEPROM_CFG_SIZE, 2, 9 },
-                    { TOH_EEPROM_UDATA_ADDR, 2, 11 },
-                    { TOH_EEPROM_UDATA_SIZE, 2, 13 },
-                */
 
-
-                headerData[0] = String(header[0]) + String(header[1])
-                headerData[1] = String(header[2]) + String(header[3])
-                headerData[2] = String(header[4])
-                headerData[3] = String(header[5]) + String(header[6])
-                headerData[4] = String(header[7]) + String(header[8])
-                headerData[5] = String(header[9]) + String(header[10])
-                headerData[6] = String(header[11]) + String(header[12])
-                headerData[7] = String(header[13]) + String(header[14])
-
-                console.log(headerTitle)
-                console.log(headerData)
-
-                for (var i=0;i<headerData.length;i++)
+                for (var i=0;i<32;i++)
                 {
-                    eepromData.append({ "headerTitle": headerTitle[i], "headerValue": headerData[i]})
+                    var headerData = String(header[(2*i)]) + String(header[(2*i)+1])
+                    eepromCfgData.append({ "headerTitle": ("Parameter " + i), "headerValue": headerData})
                 }
 
             }
