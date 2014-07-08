@@ -17,8 +17,8 @@
 
 int main(int argc, char *argv[])
 {
-    qmlRegisterType<I2cif>("i2ctool.I2cif", 1, 0, "I2cif");
-    qmlRegisterType<Conv>("i2ctool.Conv", 1, 0, "Conv");
+    qmlRegisterType<I2cif>("harbour.i2ctool.I2cif", 1, 0, "I2cif");
+    qmlRegisterType<Conv>("harbour.i2ctool.Conv", 1, 0, "Conv");
 
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
     QScopedPointer<QQuickView> view(SailfishApp::createView());

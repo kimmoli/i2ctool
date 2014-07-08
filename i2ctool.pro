@@ -1,6 +1,6 @@
 # I2CTool
 
-TARGET = i2ctool
+TARGET = harbour-i2ctool
 
 CONFIG += sailfishapp
 
@@ -15,8 +15,8 @@ OTHER_FILES += qml/i2ctool.qml \
     qml/cover/CoverPage.qml \
     qml/pages/Mainmenu.qml \
     rpm/i2ctool.spec \
-	i2ctool.png \
-    i2ctool.desktop \
+    harbour-i2ctool.png \
+    harbour-i2ctool.desktop \
     qml/pages/Probe.qml \
     qml/pages/ReaderWriter.qml \
     qml/i2ctool.png \
