@@ -3,15 +3,16 @@ I2Ctool
 
 This tool is for probing, writing and reading the I2C bus of Jolla phone.
 
-**Must be started as root from command line**
+For more detailed help, see i2ctool-ug.pdf
 
 Other half bus is /dev/i2c-1/ which is selected by default.
 
 On front page, you can 
-- change the bus
+- change the bus (just keep the default here)
 - enable or disable the Vdd supply pin of OH (3.3V)
 - start probing of selected bus
 - start writing, reading mode
+- read, set and write EEPROM configuration
 
 In writing and reading mode you give i2c device address (propably something that probe did found) e.g. `3c`
 
