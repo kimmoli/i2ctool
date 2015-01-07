@@ -24,6 +24,8 @@ Page
                                 "UDATA Addr",
                                 "UDATA Size" ]
 
+    property bool writeButtonPressed: false
+
     function sleep(milliseconds)
     {
       var start = new Date().getTime();
@@ -36,13 +38,61 @@ Page
       }
     }
 
-    Component.onCompleted:
+    function initReadHeader()
     {
+        i2cif.unbindTohCore() // This works only if root
+        sleep(100)
         state = "readHeader"
         /* Set read pointer to 0 */
         i2cif.i2cWrite(deviceName, conv.toInt(addr), "0")
         /* Read whole header of 15 bytes */
         i2cif.i2cRead(deviceName, conv.toInt(addr), 15)
+    }
+
+    function readHeader()
+    {
+        var header = i2cif.i2cReadResult.split(' ')
+        /*
+            { TOH_EEPROM_VENDOR, 2, 0 },
+            { TOH_EEPROM_PRODUCT, 2, 2 },
+            { TOH_EEPROM_REV, 1, 4 },
+            { TOH_EEPROM_EEPROM_SIZE, 2, 5 },
+            { TOH_EEPROM_CFG_ADDR, 2, 7 },
+            { TOH_EEPROM_CFG_SIZE, 2, 9 },
+            { TOH_EEPROM_UDATA_ADDR, 2, 11 },
+            { TOH_EEPROM_UDATA_SIZE, 2, 13 },
+        */
+
+
+        headerData[0] = String(header[0]) + String(header[1])
+        headerData[1] = String(header[2]) + String(header[3])
+        headerData[2] = String(header[4])
+        headerData[3] = String(header[5]) + String(header[6])
+        headerData[4] = String(header[7]) + String(header[8])
+        headerData[5] = String(header[9]) + String(header[10])
+        headerData[6] = String(header[11]) + String(header[12])
+        headerData[7] = String(header[13]) + String(header[14])
+
+        console.log(headerTitle)
+        console.log(headerData)
+
+        eepromData.clear()
+
+        for (var i=0;i<headerData.length;i++)
+        {
+            eepromData.append({ "headerTitle": headerTitle[i], "headerValue": headerData[i]})
+        }
+
+    }
+
+    Component.onCompleted:
+    {
+        initReadHeader()
+    }
+
+    RemorsePopup
+    {
+        id: remorse
     }
 
     SilicaFlickable
@@ -57,19 +107,18 @@ Page
             {
                 text: "Set these as default values"
                 onClicked:
-                {
-                    for (var n=0; n<8; n++)
-                        i2cif.setAsDefault(n, dataView.model.get(n).headerValue)
-                }
+                    remorse.execute("Overwriting in", function()
+                        {
+                            for (var n=0; n<8; n++)
+                                i2cif.setAsDefault(n, dataView.model.get(n).headerValue)
+                        })
             }
-
             MenuItem
             {
-                text: "Fill with defaults"
+                text: "Re-read from EEPROM"
                 onClicked:
                 {
-                    for (var n=0; n<8; n++)
-                        dataView.model.setProperty(n, "headerValue", i2cif.getDefault(n))
+                    initReadHeader()
                 }
             }
 
@@ -83,6 +132,25 @@ Page
                 }
             }
 
+            MenuLabel
+            {
+                text: "^ Only for advanced use ^"
+            }
+
+            MenuItem
+            {
+                text: "Fill with defaults"
+                onClicked:
+                {
+                    if (dataView.model.count === 0)
+                        for (var i=0;i<8;i++)
+                        {
+                            dataView.model.append({ "headerTitle": headerTitle[i], "headerValue": "0"})
+                        }
+                    for (var n=0; n<8; n++)
+                        dataView.model.setProperty(n, "headerValue", i2cif.getDefault(n))
+                }
+            }
         }
 
         Column
@@ -121,6 +189,41 @@ Page
                     visible: false
                     anchors.centerIn: parent
                 }
+                Label
+                {
+                    id: writeErrorLabel
+                    color: "red"
+                    font.bold: true
+                    font.pixelSize: Theme.fontSizeExtraLarge
+                    text: "Write failed"
+                    visible: false
+                    anchors.centerIn: parent
+                    onVisibleChanged: if (visible) writeResultLabelHide.start()
+                }
+                Label
+                {
+                    id: writeSuccessLabel
+                    color: "light green"
+                    font.bold: true
+                    font.pixelSize: Theme.fontSizeExtraLarge
+                    text: "Write OK"
+                    visible: false
+                    anchors.centerIn: parent
+                    onVisibleChanged: if (visible) writeResultLabelHide.start()
+                }
+                Timer
+                {
+                    id: writeResultLabelHide
+                    interval: 2500
+                    running: false
+                    repeat: false
+                    onTriggered:
+                    {
+                        writeSuccessLabel.visible = false
+                        writeErrorLabel.visible = false
+                    }
+                }
+
             }
 
 
@@ -184,12 +287,26 @@ Page
             }
             Button
             {
+                id: retryButton
+                text: "Retry read"
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: errorLabel.visible
+                onClicked: initReadHeader()
+            }
+
+            Button
+            {
                 id: writeButton
                 text: "Write"
                 anchors.horizontalCenter: parent.horizontalCenter
+                enabled: !writeErrorLabel.visible && !writeSuccessLabel.visible
                 onClicked:
                 {
+                    i2cif.unbindTohCore() // This works only if root
+                    sleep(100)
+
                     console.log(eepromData.count)
+                    writeButtonPressed = true
 
                     var data = "00 "
                     var tmp = eepromData.get(0).headerValue
@@ -225,6 +342,7 @@ Page
 
                     data += "FF"
 
+                    writeButtonPressed = true
                     i2cif.i2cWrite(deviceName, conv.toInt(addr), data)
                     sleep(50)
 
@@ -243,8 +361,30 @@ Page
         id: i2cif
         onI2cError:
         {
-            writeButton.visible = false
-            errorLabel.visible = true
+            errorLabel.visible = false
+
+            if (writeButtonPressed)
+            {
+                writeErrorLabel.visible = true
+                writeButtonPressed = false
+            }
+            else
+            {
+                writeButton.visible = false
+                errorLabel.visible = true
+            }
+        }
+
+        onI2cWriteOk:
+        {
+            errorLabel.visible = false
+
+            if (writeButtonPressed)
+            {
+                writeSuccessLabel.visible = true
+                writeButtonPressed = false
+            }
+            writeButton.visible = true
         }
 
         onI2cReadResultChanged:
@@ -257,36 +397,7 @@ Page
 
             if (state === "readHeader")
             {
-                var header = i2cif.i2cReadResult.split(' ')
-                /*
-                    { TOH_EEPROM_VENDOR, 2, 0 },
-                    { TOH_EEPROM_PRODUCT, 2, 2 },
-                    { TOH_EEPROM_REV, 1, 4 },
-                    { TOH_EEPROM_EEPROM_SIZE, 2, 5 },
-                    { TOH_EEPROM_CFG_ADDR, 2, 7 },
-                    { TOH_EEPROM_CFG_SIZE, 2, 9 },
-                    { TOH_EEPROM_UDATA_ADDR, 2, 11 },
-                    { TOH_EEPROM_UDATA_SIZE, 2, 13 },
-                */
-
-
-                headerData[0] = String(header[0]) + String(header[1])
-                headerData[1] = String(header[2]) + String(header[3])
-                headerData[2] = String(header[4])
-                headerData[3] = String(header[5]) + String(header[6])
-                headerData[4] = String(header[7]) + String(header[8])
-                headerData[5] = String(header[9]) + String(header[10])
-                headerData[6] = String(header[11]) + String(header[12])
-                headerData[7] = String(header[13]) + String(header[14])
-
-                console.log(headerTitle)
-                console.log(headerData)
-
-                for (var i=0;i<headerData.length;i++)
-                {
-                    eepromData.append({ "headerTitle": headerTitle[i], "headerValue": headerData[i]})
-                }
-
+                readHeader()
             }
             state = "Unknown"
         }

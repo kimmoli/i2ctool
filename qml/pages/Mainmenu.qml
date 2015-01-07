@@ -84,7 +84,6 @@ Page
                 text: "TOH EEPROM"
                 onClicked:
                 {
-                    i2cif.unbindTohCore() // This works only if root
                     pageStack.push(Qt.resolvedUrl("TohEeprom.qml"), {deviceName: "/dev/i2c-1"})
                 }
             }
