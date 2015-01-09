@@ -124,17 +124,33 @@ Page
 
             MenuItem
             {
+                text: "Change EEPROM address"
+                onClicked:
+                {
+                    var editDialog = pageStack.push(Qt.resolvedUrl("EditHeaderEntry.qml"),
+                                                {"headerTitle": "EEPROM Address",
+                                                 "headerValue": addr,
+                                                 "len": 2 })
+
+                    editDialog.accepted.connect( function()
+                    {
+                        if (conv.toInt(addr) > 0 && conv.toInt(addr) < 128)
+                        {
+                            addr = editDialog.headerValue
+                            initReadHeader()
+                        }
+                    })
+                }
+            }
+
+            MenuItem
+            {
                 text: "Edit CFG section"
                 onClicked:
                 {
                     pageStack.push(Qt.resolvedUrl("TohEepromCfgEdit.qml"), {deviceName: "/dev/i2c-1",
-                                   cfgAddr: dataView.model.get(4).headerValue})
+                                   cfgAddr: dataView.model.get(4).headerValue, addr: addr})
                 }
-            }
-
-            MenuLabel
-            {
-                text: "^ Only for advanced use ^"
             }
 
             MenuItem
@@ -159,7 +175,7 @@ Page
 
             width: parent.width
             spacing: 0
-            property string colTitle: "TOH EEPROM"
+            property string colTitle: "EEPROM 0x" + addr
             PageHeader
             {
                 title: parent.colTitle
@@ -238,7 +254,7 @@ Page
                 delegate: BackgroundItem
                 {
                     id: dataItem
-                    width: parent.width
+                    width: column.width
                     height: Theme.itemSizeSmall
                     onClicked: editData()
 
