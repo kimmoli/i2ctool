@@ -90,6 +90,11 @@ Page
                 tmp.color = "green"
                 tmp.textcol = "white"
             }
+            else if (res == "skipped")
+            {
+                tmp.color = "gray"
+                tmp.textcol = "white"
+            }
 
             address++
             if (address < 128)
@@ -106,7 +111,7 @@ Page
         id: scanTimer
         running: applicationActive && probePage.status === PageStatus.Active
         repeat: false
-        interval: 100
+        interval: 1
         onTriggered:
         {
             if (address < 128)

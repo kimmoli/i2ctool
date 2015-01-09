@@ -231,7 +231,14 @@ void I2cif::i2cProbe(QString devName, unsigned char address)
     int file;
     char buf[2];
 
-    m_probingResult = "busy";
+    /* These few addresses takes long time to probe, so skip them brutely */
+    if (address >= 4 && address <= 7)
+    {
+        m_probingResult = "skipped";
+        emit i2cProbingChanged();
+        return;
+    }
+
 
     QByteArray tmpBa = devName.toUtf8();
     const char* devNameChar = tmpBa.constData();
