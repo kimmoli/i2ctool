@@ -66,59 +66,45 @@ Page
     {
         id: i2cif
 
+        Component.onCompleted: i2cif.i2cProbe(deviceName)
+
         onI2cProbingChanged:
         {
-            var tmp = addressGrid.itemAt(address)
-            var res = i2cif.i2cProbingStatus;
-            if (res === "openFail")
+            var results = i2cif.i2cProbingStatus;
+            for (var i=0 ; i<i2cif.i2cProbingStatus.length ; i++)
             {
-                tmp.color = "red"
-                tmp.textcol = "white"
-            }
-            else if (res === "ioctlFail")
-            {
-                tmp.color = "blue"
-                tmp.textcol = "white"
-            }
-            else if (res === "readFail")
-            {
-                tmp.color = "yellow"
-                tmp.textcol = "black"
-            }
-            else if (res === "ok")
-            {
-                tmp.color = "green"
-                tmp.textcol = "white"
-            }
-            else if (res == "skipped")
-            {
-                tmp.color = "gray"
-                tmp.textcol = "white"
+                var res = results[i]
+                var tmp = addressGrid.itemAt(i)
+
+                if (res === "openFail")
+                {
+                    tmp.color = "red"
+                    tmp.textcol = "white"
+                }
+                else if (res === "ioctlFail")
+                {
+                    tmp.color = "blue"
+                    tmp.textcol = "white"
+                }
+                else if (res === "readFail")
+                {
+                    tmp.color = "yellow"
+                    tmp.textcol = "black"
+                }
+                else if (res === "ok")
+                {
+                    tmp.color = "green"
+                    tmp.textcol = "white"
+                }
+                else if (res === "skipped")
+                {
+                    tmp.color = "black"
+                    tmp.textcol = "white"
+                }
             }
 
-            address++
-            if (address < 128)
-                scanTimer.start()
-            else
-                column.colTitle = deviceName + " scanned"
+            column.colTitle = "Probe for " + deviceName
 
         }
     }
-
-
-    Timer
-    {
-        id: scanTimer
-        running: applicationActive && probePage.status === PageStatus.Active
-        repeat: false
-        interval: 1
-        onTriggered:
-        {
-            if (address < 128)
-            {
-                i2cif.i2cProbe(deviceName, address)
-            }
-        }
-    }
-
 }

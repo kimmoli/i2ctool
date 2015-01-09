@@ -12,7 +12,7 @@
 I2cif::I2cif(QObject *parent) :
     QObject(parent)
 {
-    m_probingResult = "pending";
+    m_probingResult = QStringList();
     m_readResult = "Nothing yet";
     emit tohVddStatusChanged();
 }
@@ -22,7 +22,7 @@ I2cif::~I2cif()
 }
 
 
-QString I2cif::i2cProbingStatus()
+QStringList I2cif::i2cProbingStatus()
 {
     return m_probingResult;
 }
@@ -216,65 +216,73 @@ void I2cif::i2cRead(QString devName, unsigned char address, int count)
 /*
  * Simple probing function to check its presence in I2C bus
  *
- * Returns a string through i2cProbingStatus()
+ * Returns a stringlist through i2cProbingStatus()
  * emits a i2cProbingChanged() signal when complete
  *
  * "ok" - reading 2 bytes was succesful
  * "openFail - open() command faild to open device
  * "ioctlFail" - ioctl() to slave address failed
  * "readFail" - read() 2 bytes from slave failed (basically NACK)
+ * "skipped" - addresses 4...7 are skipped to speed up operation
  *
  */
 
-void I2cif::i2cProbe(QString devName, unsigned char address)
+void I2cif::i2cProbe(QString devName)
 {
     int file;
     char buf[2];
+    unsigned char address;
 
-    /* These few addresses takes long time to probe, so skip them brutely */
-    if (address >= 4 && address <= 7)
+    m_probingResult.clear();
+
+    for (address = 0; address < 128; address++)
     {
-        m_probingResult = "skipped";
-        emit i2cProbingChanged();
-        return;
-    }
+
+        /* These few addresses takes long time to probe, so skip them brutely */
+        if (address >= 4 && address <= 7)
+        {
+            m_probingResult.append("skipped");
+            continue;
+        }
 
 
-    QByteArray tmpBa = devName.toUtf8();
-    const char* devNameChar = tmpBa.constData();
+        QByteArray tmpBa = devName.toUtf8();
+        const char* devNameChar = tmpBa.constData();
 
-    fprintf(stderr, "probing %s address %02x: ", devNameChar, address);
+        fprintf(stderr, "probing %s address %02x: ", devNameChar, address);
 
-    if ((file = open (devNameChar, O_RDWR)) < 0)
-    {
-        m_probingResult = "openFail";
-        fprintf(stderr, "open failed\n");
-        emit i2cProbingChanged();
-        return;
-    }
+        if ((file = open (devNameChar, O_RDWR)) < 0)
+        {
+            m_probingResult.append("openFail");
+            fprintf(stderr, "open failed\n");
+            close(file);
+            continue;
+        }
 
-    if (ioctl(file, I2C_SLAVE, address) < 0)
-    {
+        if (ioctl(file, I2C_SLAVE, address) < 0)
+        {
+            close(file);
+            m_probingResult.append("ioctlFail");
+            fprintf(stderr, "ioctl failed\n");
+            close(file);
+            continue;
+        }
+
+        /* Try to read 2 bytes. This is also safe for LM75 */
+        if (read( file, buf, 2 ) != 2)
+        {
+            close(file);
+            m_probingResult.append("readFail");
+            fprintf(stderr, "read failed\n");
+            close(file);
+            continue;
+        }
+
         close(file);
-        m_probingResult = "ioctlFail";
-        fprintf(stderr, "ioctl failed\n");
-        emit i2cProbingChanged();
-        return;
+        m_probingResult.append("ok");
+        fprintf(stderr, "device found at address %02x\n", address);
     }
 
-    /* Try to read 2 bytes. This is also safe for LM75 */
-    if (read( file, buf, 2 ) != 2)
-    {
-        close(file);
-        m_probingResult = "readFail";
-        fprintf(stderr, "read failed\n");
-        emit i2cProbingChanged();
-        return;
-    }
-
-    close(file);
-    m_probingResult = "ok";
-    fprintf(stderr, "device found at address %02x\n", address);
     emit i2cProbingChanged();
 
 }
