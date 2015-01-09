@@ -7,7 +7,6 @@ import harbour.i2ctool.I2cif 1.0
 Page
 {
     id: probePage
-    property int address: 0
     property string deviceName: "/dev/i2c-1"
 
     SilicaFlickable
@@ -21,7 +20,7 @@ Page
 
             width: parent.width
             spacing: 0
-            property string colTitle: "Scanning 0x" + conv.toHex(address, 2)
+            property string colTitle: "Scanning..."
             PageHeader
             {
                 title: parent.colTitle
