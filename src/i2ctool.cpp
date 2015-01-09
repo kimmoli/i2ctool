@@ -21,6 +21,9 @@ int main(int argc, char *argv[])
     qmlRegisterType<Conv>("harbour.i2ctool.Conv", 1, 0, "Conv");
 
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
+
+    app->setApplicationVersion(APPVERSION);
+
     QScopedPointer<QQuickView> view(SailfishApp::createView());
     view->setSource(SailfishApp::pathTo("qml/i2ctool.qml"));
     view->show();

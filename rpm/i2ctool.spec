@@ -13,8 +13,8 @@ Name:       harbour-i2ctool
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    I2C Tool
-Version:    0.4
-Release:    1
+Version:    0.4.2
+Release:    2
 Group:      Qt/Qt
 License:    LICENSE
 URL:        http://example.org/
@@ -40,7 +40,7 @@ App to control jolla I2C bus
 # >> build pre
 # << build pre
 
-%qtc_qmake5 
+%qtc_qmake5 SPECVERSION=%{version}
 
 %qtc_make %{?_smp_mflags}
 

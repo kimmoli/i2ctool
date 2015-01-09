@@ -104,13 +104,13 @@ Page
             {
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: Text.AlignHCenter
-                text: "I2C Tool"
+                text: "I2C Tool ver " + Qt.application.version
             }
             Label
             {
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: Text.AlignHCenter
-                text: "(C) 2014 Kimmoli"
+                text: "(C) 2015 Kimmoli"
             }
 
         }

@@ -4,6 +4,10 @@ TARGET = harbour-i2ctool
 
 CONFIG += sailfishapp
 
+DEFINES += "APPVERSION=\\\"$${SPECVERSION}\\\""
+
+message($${DEFINES})
+
 SOURCES += src/i2ctool.cpp \
 	src/i2cif.cpp \
     src/conv.cpp
