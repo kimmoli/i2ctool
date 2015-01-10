@@ -14,6 +14,7 @@ Page
     property string result : "Unknown"
     property string state : "Unknown"
     property string addr : "50"
+    property string cfgSize : "0040"
 
     property bool writeButtonPressed: false
 
@@ -34,8 +35,8 @@ Page
         state = "readHeader"
         /* Set read pointer to 0 */
         i2cif.i2cWrite(deviceName, conv.toInt(addr), cfgAddr)
-        /* Read whole header of 15 bytes */
-        i2cif.i2cRead(deviceName, conv.toInt(addr), 64)
+        /* Read bytes */
+        i2cif.i2cRead(deviceName, conv.toInt(addr), conv.toInt(cfgSize))
     }
 
     SilicaFlickable
@@ -199,7 +200,7 @@ Page
 
                     var address = conv.toInt(cfgAddr.substring(2))
 
-                    for (var m = 0 ; m<8; m++)
+                    for (var m = 0 ; m<conv.toInt(cfgSize)/8; m++)
                     {
                         var data = conv.toHex((address + m*8),2)
 
@@ -269,7 +270,7 @@ Page
             {
                 var header = i2cif.i2cReadResult.split(' ')
 
-                for (var i=0;i<32;i++)
+                for (var i=0;i< conv.toInt(cfgSize)/2 ;i++)
                 {
                     var headerData = String(header[(2*i)]) + String(header[(2*i)+1])
                     eepromCfgData.append({ "headerTitle": ("Parameter " + i), "headerValue": headerData})

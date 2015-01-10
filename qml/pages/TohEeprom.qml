@@ -148,8 +148,46 @@ Page
                 text: "Edit CFG section"
                 onClicked:
                 {
-                    pageStack.push(Qt.resolvedUrl("TohEepromCfgEdit.qml"), {deviceName: "/dev/i2c-1",
-                                   cfgAddr: dataView.model.get(4).headerValue, addr: addr})
+                    var eesize = conv.toInt(dataView.model.get(3).headerValue)
+                    var caddr = conv.toInt(dataView.model.get(4).headerValue)
+                    var csize = conv.toInt(dataView.model.get(5).headerValue)
+
+                    /* Check that CFG is valid'ish */
+                    if (eesize === 65535 || caddr === 65535 || csize === 65535)
+                    {
+                        cfgErrorLabel.text = "CFG 0xFFFF ?"
+                        cfgErrorLabel.visible = true
+                    }
+                    else if (caddr === 0 || eesize === 0 || csize === 0)
+                    {
+                        cfgErrorLabel.text = "CFG 0x0000 ?"
+                        cfgErrorLabel.visible = true
+                    }
+                    else if ((caddr + csize) > eesize || (caddr > eesize) || (csize > eesize))
+                    {
+                        cfgErrorLabel.text = "CFG too large"
+                        cfgErrorLabel.visible = true
+                    }
+                    else if (csize > 64)
+                    {
+                        cfgErrorLabel.text = "CFG size > 64"
+                        cfgErrorLabel.visible = true
+                    }
+                    else if (csize < 8)
+                    {
+                        cfgErrorLabel.text = "CFG size < 8"
+                        cfgErrorLabel.visible = true
+                    }
+                    else if ((csize % 2) == 1 || (caddr % 2) == 1 )
+                    {
+                        cfgErrorLabel.text = "CFG not even"
+                        cfgErrorLabel.visible = true
+                    }
+                    else
+                        pageStack.push(Qt.resolvedUrl("TohEepromCfgEdit.qml"), {deviceName: "/dev/i2c-1",
+                                   cfgAddr: dataView.model.get(4).headerValue,
+                                   addr: addr,
+                                   cfgSize: dataView.model.get(5).headerValue})
                 }
             }
 
@@ -227,6 +265,18 @@ Page
                     anchors.centerIn: parent
                     onVisibleChanged: if (visible) writeResultLabelHide.start()
                 }
+                Label
+                {
+                    id: cfgErrorLabel
+                    color: "red"
+                    font.bold: true
+                    font.pixelSize: Theme.fontSizeExtraLarge
+                    text: "Check CFG values"
+                    visible: false
+                    anchors.centerIn: parent
+                    onVisibleChanged: if (visible) writeResultLabelHide.start()
+                }
+
                 Timer
                 {
                     id: writeResultLabelHide
@@ -237,6 +287,7 @@ Page
                     {
                         writeSuccessLabel.visible = false
                         writeErrorLabel.visible = false
+                        cfgErrorLabel.visible = false
                     }
                 }
 
