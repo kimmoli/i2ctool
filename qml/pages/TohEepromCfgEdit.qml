@@ -15,6 +15,8 @@ Page
     property string state : "Unknown"
     property string addr : "50"
 
+    property bool writeButtonPressed: false
+
     function sleep(milliseconds)
     {
       var start = new Date().getTime();
@@ -142,10 +144,54 @@ Page
 
                 }
             }
+
+            Rectangle
+            {
+                id: spacerTwo
+                color: "transparent"
+                height: 50
+                width: parent.width
+                Label
+                {
+                    id: writeErrorLabel
+                    color: "red"
+                    font.bold: true
+                    font.pixelSize: Theme.fontSizeExtraLarge
+                    text: "Write failed"
+                    visible: false
+                    anchors.centerIn: parent
+                    onVisibleChanged: if (visible) writeResultLabelHide.start()
+                }
+                Label
+                {
+                    id: writeSuccessLabel
+                    color: "light green"
+                    font.bold: true
+                    font.pixelSize: Theme.fontSizeExtraLarge
+                    text: "Write OK"
+                    visible: false
+                    anchors.centerIn: parent
+                    onVisibleChanged: if (visible) writeResultLabelHide.start()
+                }
+                Timer
+                {
+                    id: writeResultLabelHide
+                    interval: 2500
+                    running: false
+                    repeat: false
+                    onTriggered:
+                    {
+                        writeSuccessLabel.visible = false
+                        writeErrorLabel.visible = false
+                    }
+                }
+            }
+
             Button
             {
                 id: writeButton
                 text: "Write"
+                enabled: !writeErrorLabel.visible && !writeSuccessLabel.visible
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked:
                 {
@@ -163,6 +209,7 @@ Page
                             data += " " + String(tmp).charAt(0) + String(tmp).charAt(1) + " " + String(tmp).charAt(2) + String(tmp).charAt(3)
                         }
 
+                        writeButtonPressed = true
                         i2cif.i2cWrite(deviceName, conv.toInt(addr), data)
                         sleep(50)
 
@@ -181,10 +228,33 @@ Page
     I2cif
     {
         id: i2cif
+
         onI2cError:
         {
-            writeButton.visible = false
-            errorLabel.visible = true
+            errorLabel.visible = false
+
+            if (writeButtonPressed)
+            {
+                writeErrorLabel.visible = true
+                writeButtonPressed = false
+            }
+            else
+            {
+                writeButton.visible = false
+                errorLabel.visible = true
+            }
+        }
+
+        onI2cWriteOk:
+        {
+            errorLabel.visible = false
+
+            if (writeButtonPressed)
+            {
+                writeSuccessLabel.visible = true
+                writeButtonPressed = false
+            }
+            writeButton.visible = true
         }
 
         onI2cReadResultChanged:
