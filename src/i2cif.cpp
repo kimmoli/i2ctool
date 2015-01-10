@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <QCoreApplication>
 #include <QSettings>
+#include <QProcess>
+#include <QThread>
+#include <sailfishapp.h>
 #include "conv.h"
 
 I2cif::I2cif(QObject *parent) :
@@ -351,4 +354,18 @@ QString I2cif::firstTimeDefault(QString index)
     if (index == "6") return "0080";
     if (index == "7") return "0000";
     return "0000";
+}
+
+/* use xdg-open to start pdf-viewer for showing usersguide
+*/
+void I2cif::openUsersGuide()
+{
+    QProcess proc;
+    QString ugpath = SailfishApp::pathTo("i2ctool-ug.pdf").toString();
+
+    fprintf(stderr, "loading user's guide %s\n", qPrintable(ugpath));
+
+    proc.startDetached("/usr/bin/xdg-open" , QStringList() << ugpath);
+
+    QThread::msleep(100);
 }

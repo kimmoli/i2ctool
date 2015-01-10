@@ -8,6 +8,11 @@ DEFINES += "APPVERSION=\\\"$${SPECVERSION}\\\""
 
 message($${DEFINES})
 
+usersguide.path = /usr/share/$${TARGET}
+usersguide.files = i2ctool-ug.pdf
+
+INSTALLS += usersguide
+
 SOURCES += src/i2ctool.cpp \
 	src/i2cif.cpp \
     src/conv.cpp
@@ -28,5 +33,6 @@ OTHER_FILES += qml/i2ctool.qml \
     qml/icon-on.png \
     qml/icon-off.png \
     qml/pages/EditHeaderEntry.qml \
-    qml/pages/TohEepromCfgEdit.qml
+    qml/pages/TohEepromCfgEdit.qml \
+    i2ctool-ug.pdf
 

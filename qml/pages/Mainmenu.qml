@@ -112,6 +112,19 @@ Page
                 horizontalAlignment: Text.AlignHCenter
                 text: "(C) 2015 Kimmoli"
             }
+            Button
+            {
+                id: ugButton
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "User's guide"
+                enabled: !openingUsersGuide
+
+                onClicked:
+                {
+                    openingUsersGuide = true
+                    i2cif.openUsersGuide()
+                }
+            }
 
         }
     }

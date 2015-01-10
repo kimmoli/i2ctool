@@ -28,6 +28,8 @@ public:
     Q_INVOKABLE void setAsDefault(QString index, QString value);
     Q_INVOKABLE QString getDefault(QString index);
 
+    Q_INVOKABLE void openUsersGuide();
+
     QString firstTimeDefault(QString index);
 
 signals:
