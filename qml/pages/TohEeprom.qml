@@ -170,12 +170,12 @@ Page
                     }
                     else if (csize > 64)
                     {
-                        cfgErrorLabel.text = "CFG size > 64"
+                        cfgErrorLabel.text = "CFG size > 0x40"
                         cfgErrorLabel.visible = true
                     }
                     else if (csize < 8)
                     {
-                        cfgErrorLabel.text = "CFG size < 8"
+                        cfgErrorLabel.text = "CFG size < 0x08"
                         cfgErrorLabel.visible = true
                     }
                     else if ((csize % 2) == 1 || (caddr % 2) == 1 )
