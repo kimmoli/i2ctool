@@ -9,7 +9,7 @@ Name:       harbour-i2ctool
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    I2C Tool
-Version:    0.4.3
+Version:    0.4.4
 Release:    2
 Group:      Qt/Qt
 License:    LICENSE
@@ -21,6 +21,8 @@ BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(sailfishapp) >= 0.0.10
 BuildRequires:  desktop-file-utils
+
+Obsoletes: harbour-i2ctool
 
 %description
 Jolla I2C bus test and control application
