@@ -116,7 +116,7 @@ Page
             {
                 id: ugButton
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "User's guide"
+                text: "User's guide (PDF)"
                 enabled: !openingUsersGuide
 
                 onClicked:
@@ -124,6 +124,26 @@ Page
                     openingUsersGuide = true
                     i2cif.openUsersGuide()
                 }
+                Row
+                {
+                    anchors.centerIn: parent
+                    spacing: Theme.paddingMedium
+                    visible: openingUsersGuide
+
+                    Label
+                    {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "Opening..."
+                        color: Theme.highlightColor
+                    }
+                    BusyIndicator
+                    {
+                        anchors.verticalCenter: parent.verticalCenter
+                        size: BusyIndicatorSize.Small
+                        running: openingUsersGuide
+                    }
+                }
+
             }
 
         }
