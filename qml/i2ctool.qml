@@ -6,6 +6,7 @@ import Sailfish.Silica 1.0
 
 ApplicationWindow
 {
+    _defaultPageOrientations: Orientation.All
 
     property bool openingUsersGuide: false
 

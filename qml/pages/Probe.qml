@@ -23,12 +23,14 @@ Page
             property string colTitle: "Scanning..."
             PageHeader
             {
+                id: ph
                 title: parent.colTitle
             }
 
             Grid
             {
-                columns: 8
+                id: devGrid
+                columns: isPortrait ? 8 : 16
                 Repeater
                 {
                     id: addressGrid
@@ -36,8 +38,8 @@ Page
 
                     Rectangle
                     {
-                        width: probePage.width/8
-                        height: probePage.height/20
+                        width: probePage.width/devGrid.columns
+                        height: (probePage.height - ph.height)/(128/devGrid.columns)
                         radius: 10
                         color: "transparent"
                         border.color: Theme.highlightColor
