@@ -23,6 +23,11 @@ Page
             console.log("reading")
             i2cif.i2cRead(devName, conv.toInt(addr), rC)
         }
+        if (mode === 3) // write, then read with repeated start
+        {
+            console.log("write, then read with repeated start")
+            i2cif.i2cWriteThenRead(devName, conv.toInt(addr), wD, rC)
+        }
     }
 
     SilicaFlickable
@@ -79,12 +84,13 @@ Page
                     MenuItem { text: "Write" }
                     MenuItem { text: "Read" }
                     MenuItem { text: "Write then read" }
+                    MenuItem { text: "write then read (repeated start)" }
                 }
             }
             TextField
             {
                 id: writeData
-                visible: mode.currentIndex === 0 || mode.currentIndex === 2
+                visible: mode.currentIndex === 0 || mode.currentIndex === 2 || mode.currentIndex === 3
                 placeholderText: "Enter databytes to write"
                 inputMethodHints: Qt.ImhPreferUppercase| Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
                 validator: RegExpValidator { regExp: /^[a-fA-F0-9]{1,2}(\s+[a-fA-F0-9]{1,2})*$/ }
@@ -95,7 +101,7 @@ Page
             TextField
             {
                 id: readCount
-                visible: mode.currentIndex === 1 || mode.currentIndex === 2
+                visible: mode.currentIndex === 1 || mode.currentIndex === 2 || mode.currentIndex === 3
                 placeholderText: "Enter number of bytes to read"
                 inputMethodHints: Qt.ImhDigitsOnly
                 validator: RegExpValidator { regExp: /\d+/ }
@@ -124,7 +130,7 @@ Page
             Label
             {
                 id: readBytes
-                visible: mode.currentIndex === 1 || mode.currentIndex === 2
+                visible: mode.currentIndex === 1 || mode.currentIndex === 2 || mode.currentIndex === 3
                 width: parent.width - 100
                 anchors.horizontalCenter: parent.horizontalCenter
                 wrapMode: Text.Wrap

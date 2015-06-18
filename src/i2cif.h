@@ -20,6 +20,8 @@ public:
     Q_INVOKABLE void i2cProbe(QString devName);
     Q_INVOKABLE void i2cWrite(QString devName, unsigned char address, QString data);
     Q_INVOKABLE void i2cRead(QString devName, unsigned char address, int count);
+    Q_INVOKABLE void i2cWriteThenRead(QString devName, unsigned char address, QString data, int count);
+
     Q_INVOKABLE void tohVddSet(QString onOff);
     bool tohVddGet();
     Q_INVOKABLE void requestTohVddState();

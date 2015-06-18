@@ -1,4 +1,5 @@
 #include "i2cif.h"
+#include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -214,6 +215,86 @@ void I2cif::i2cRead(QString devName, unsigned char address, int count)
     fprintf(stderr, "\n");
 
     emit i2cReadResultChanged();
+}
+/*
+ * I2C write then read with repeated stop
+ */
+
+void I2cif::i2cWriteThenRead(QString devName, unsigned char address, QString data, int count)
+{
+    int file;
+    Conv conv;
+    m_readResult = QString();
+
+    QByteArray tmpBa = devName.toUtf8();
+    const char* devNameChar = tmpBa.constData();
+
+    if ((file = open (devNameChar, O_RDWR)) < 0)
+    {
+        fprintf(stderr,"open error\n");
+        emit i2cError();
+        return;
+    }
+
+    struct i2c_rdwr_ioctl_data i2c_data;
+    struct i2c_msg msg[2];
+    unsigned char *buftx;
+    unsigned char *bufrx;
+
+    bufrx = (unsigned char *)malloc(count +1);
+
+    i2c_data.msgs = msg;
+    i2c_data.nmsgs = 2;
+
+    QStringList bytes = data.split(" ");
+    int i;
+    buftx = (unsigned char *)malloc(bytes.length()+1);
+    for (i=0 ; i<bytes.length(); i++)
+    {
+        bool parseOk;
+        QString tmp = bytes.value(i);
+        buftx[i] = tmp.toInt(&parseOk, 16);
+        if (!parseOk)
+        {
+            fprintf(stderr, "parsing error %d\n", i);
+            emit i2cError();
+            return;
+        }
+        fprintf(stderr, "%02x ", buftx[i]);
+    }
+    fprintf(stderr, "\n");
+
+    i2c_data.msgs[0].addr = address;
+    i2c_data.msgs[0].flags = 0;
+    i2c_data.msgs[0].len = bytes.length();
+    i2c_data.msgs[0].buf = (unsigned char *)buftx;
+
+    i2c_data.msgs[1].addr = address;
+    i2c_data.msgs[1].flags = I2C_M_RD;
+    i2c_data.msgs[1].len = count;
+    i2c_data.msgs[1].buf = (unsigned char *)bufrx;
+
+    int ret = ioctl(file, I2C_RDWR, &i2c_data);
+
+    if (ret < 0)
+    {
+            fprintf(stderr, "read data fail %d\n", ret);
+            emit i2cError();
+            return;
+    }
+
+    close(file);
+
+    fprintf(stderr, "read ");
+    for (i=0; i<count ; i++)
+    {
+        m_readResult = m_readResult + conv.toHex(bufrx[i],2) + " ";
+        fprintf(stderr, "%02x ", bufrx[i]);
+    }
+    fprintf(stderr, "\n");
+
+    emit i2cReadResultChanged();
+
 }
 
 /*
