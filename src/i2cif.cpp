@@ -12,6 +12,7 @@
 #include <QThread>
 #include <sailfishapp.h>
 #include "conv.h"
+#include <unistd.h>
 
 I2cif::I2cif(QObject *parent) :
     QObject(parent)
